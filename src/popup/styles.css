@@ -83,8 +83,8 @@ svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColo
 .timer { color: #f4f6fa; font-size: 58px; font-weight: 620; font-variant-numeric: tabular-nums; letter-spacing: -.06em; line-height: 1; }
 .recording-target { max-width: 280px; margin: 15px 0 44px; overflow: hidden; color: #727e91; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .recording-actions { width: 100%; display: grid; gap: 10px; }
-.recording-actions button, .download-button { width: 100%; height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 13px; font-size: 12px; font-weight: 700; transition: background-color .16s ease, transform .16s ease; }
-.recording-actions button:hover:not(:disabled), .download-button:hover:not(:disabled) { transform: translateY(-1px); }
+.recording-actions button, .download-button, .explore-button { width: 100%; height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 13px; font-size: 12px; font-weight: 700; transition: background-color .16s ease, transform .16s ease; }
+.recording-actions button:hover:not(:disabled), .download-button:hover:not(:disabled), .explore-button:hover:not(:disabled) { transform: translateY(-1px); }
 .mark-button { border: 1px solid var(--border-strong); background: var(--surface-muted); }
 .mark-button:hover:not(:disabled) { background: #222c3a; }
 .mark-button svg { width: 17px; height: 17px; color: var(--accent-hover); }
@@ -98,9 +98,68 @@ svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColo
 
 .complete-icon { width: 54px; height: 54px; padding: 14px; border: 1px solid rgba(79, 209, 156, .25); border-radius: 50%; color: var(--success); background: rgba(79, 209, 156, .07); }
 .download-status { margin-top: 18px; color: #73b69d; font-size: 10px; }
-.download-button { margin-top: 34px; border: 1px solid var(--border-strong); color: var(--text); background: var(--surface-muted); }
+.explore-button { margin-top: 28px; color: #fff; background: linear-gradient(135deg, #9293ff, #7475e8); }
+.explore-button svg, .download-button svg { width: 17px; height: 17px; }
+.download-button { margin-top: 10px; border: 1px solid var(--border-strong); color: var(--text); background: var(--surface-muted); }
 .download-button:hover:not(:disabled) { background: #222c3a; }
-.download-button svg { width: 17px; height: 17px; color: var(--accent-hover); }
+.download-button svg { color: var(--accent-hover); }
+
+.explorer-mode { height: 600px; }
+.explorer-mode .app-content { min-height: 490px; padding: 14px 16px; }
+.network-explorer { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.explorer-heading { min-height: 38px; display: grid; grid-template-columns: 34px 1fr 34px; align-items: center; gap: 9px; }
+.explorer-heading h2 { margin: 0; font-size: 16px; letter-spacing: -.25px; }
+.explorer-heading > div span { display: block; margin-top: 2px; color: #687488; font-size: 8px; }
+.back-button, .compact-download { width: 32px; height: 32px; padding: 8px; border: 1px solid var(--border); border-radius: 9px; color: var(--muted); background: var(--surface); }
+.back-button:hover, .compact-download:hover:not(:disabled) { color: var(--text); background: var(--surface-muted); }
+.network-summary { margin-top: 10px; min-height: 45px; display: grid; grid-template-columns: repeat(5, 1fr); overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.metric { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.metric + .metric { border-left: 1px solid var(--border); }
+.metric strong { font-size: 12px; font-variant-numeric: tabular-nums; }
+.metric span { margin-top: 2px; color: #6f7b8e; font-size: 7px; }
+.metric.danger strong { color: #ff9297; }
+.network-search { height: 38px; margin-top: 9px; padding: 0 11px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 10px; color: #6f7b8e; background: var(--surface); }
+.network-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
+.network-search svg { flex: 0 0 auto; width: 15px; height: 15px; }
+.network-search input { width: 100%; border: 0; outline: 0; color: var(--text); background: transparent; font-size: 10px; }
+.network-search input::placeholder { color: #606c7e; }
+.network-filters { margin-top: 8px; display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+.network-filters::-webkit-scrollbar { display: none; }
+.network-filters button { flex: 0 0 auto; height: 27px; padding: 0 9px; border: 1px solid var(--border); border-radius: 8px; color: #7f8a9c; background: transparent; font-size: 8px; }
+.network-filters button.active { border-color: rgba(139, 140, 246, .55); color: #d8d8ff; background: rgba(139, 140, 246, .12); }
+.problem-toggle { margin: 8px 1px 0; display: flex; align-items: center; gap: 7px; color: #8792a4; font-size: 9px; cursor: pointer; }
+.problem-toggle input { width: 13px; height: 13px; margin: 0; accent-color: var(--accent); }
+.network-workspace { min-height: 0; margin-top: 9px; flex: 1; display: grid; grid-template-rows: minmax(96px, 1fr) minmax(112px, 1.15fr); gap: 8px; }
+.request-list, .request-details { min-height: 0; overflow: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); scrollbar-color: var(--border-strong) transparent; scrollbar-width: thin; }
+.request-row { width: 100%; min-height: 46px; padding: 7px 9px; display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255, 255, 255, .045); color: var(--text); text-align: left; background: transparent; }
+.request-row:hover, .request-row.selected { background: var(--surface-muted); }
+.status-code { display: inline-grid; place-items: center; min-width: 33px; height: 20px; padding: 0 4px; border-radius: 5px; color: #9aa6b8; background: #222b38; font-size: 8px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.status-code.status-success { color: #75d5ae; background: rgba(79, 209, 156, .09); }
+.status-code.status-redirect { color: #9bb7dc; background: rgba(85, 194, 232, .08); }
+.status-code.status-warning { color: #e9b45d; background: rgba(233, 180, 93, .09); }
+.status-code.status-danger { color: #ff9297; background: rgba(255, 98, 105, .09); }
+.request-copy { min-width: 0; }
+.request-copy strong, .request-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.request-copy strong { font-size: 9px; }
+.request-copy small { margin-top: 3px; color: #6f7b8e; font-size: 8px; }
+.request-duration { color: #6f7b8e; font-size: 8px; font-variant-numeric: tabular-nums; }
+.empty-network { margin: 32px 0; color: #697588; text-align: center; font-size: 9px; }
+.request-details { padding: 10px 11px; }
+.details-title { display: flex; align-items: center; gap: 7px; }
+.details-title strong { font-size: 10px; }
+.details-title > span:last-child { margin-left: auto; color: #778396; font-size: 8px; }
+.details-url { margin: 8px 0; overflow-wrap: anywhere; color: #b2bac7; font-size: 8px; line-height: 1.45; }
+.request-details dl { margin: 0; }
+.request-details dl > div { padding: 3px 0; display: grid; grid-template-columns: 56px 1fr; gap: 6px; font-size: 8px; }
+.request-details dt { color: #687488; }
+.request-details dd { margin: 0; overflow-wrap: anywhere; color: #aab3c2; }
+.request-details .error-detail dd { color: #ff9297; }
+.request-details details { margin-top: 7px; border-top: 1px solid rgba(255, 255, 255, .05); }
+.request-details summary { padding-top: 7px; color: #8c97a8; font-size: 8px; cursor: pointer; }
+.request-details summary span { color: #626e81; }
+.header-list p { margin: 5px 0 0; display: grid; grid-template-columns: minmax(70px, .7fr) 1fr; gap: 7px; font-size: 7px; line-height: 1.35; }
+.header-list strong { overflow-wrap: anywhere; color: #8792a4; }
+.header-list span { overflow-wrap: anywhere; color: #b2bac7; }
 
 .alert { margin-top: 14px; padding: 10px 11px; display: grid; grid-template-columns: 16px 1fr; gap: 8px; border: 1px solid rgba(255, 98, 105, .3); border-radius: 10px; color: #ffb0b4; background: rgba(255, 98, 105, .07); font-size: 9px; line-height: 1.4; }
 .alert svg { width: 15px; height: 15px; color: var(--danger); }

@@ -8,6 +8,7 @@ const projectRoot = resolve(import.meta.dirname, '..');
 const distDirectory = resolve(projectRoot, 'dist');
 const screenshotDirectory = resolve(projectRoot, 'docs', 'screenshots');
 const screenshotPath = resolve(screenshotDirectory, 'bugcapture-popup.png');
+const networkScreenshotPath = resolve(screenshotDirectory, 'bugcapture-network.png');
 const executablePath = findBrowser();
 
 const server = createServer(async (request, response) => {
@@ -39,7 +40,7 @@ try {
   });
   const page = await context.newPage();
   await page.addInitScript(() => {
-    const summary = {
+    const readySummary = {
       status: 'idle',
       duration: 0,
       requestCount: 0,
@@ -60,19 +61,82 @@ try {
         userAgent: 'YaBrowser/26.6.4.760',
       },
     };
+    const network = [
+      networkEvent('1', 'GET', 'https://tracker.example.ru/api/issues/BC-142', 200, 84),
+      networkEvent('2', 'POST', 'https://tracker.example.ru/api/attachments', 500, 1482),
+      networkEvent('3', 'GET', 'https://cdn.example.ru/upload/chunk', 0, 30000, 'net::ERR_TIMED_OUT'),
+      networkEvent('4', 'GET', 'https://tracker.example.ru/api/profile', 304, 28),
+    ];
+    const completedSummary = {
+      ...readySummary,
+      status: 'completed',
+      duration: 38_000,
+      requestCount: network.length,
+      httpErrorCount: 2,
+      result: {
+        metadata: {
+          sessionId: 'screenshot-session',
+          startTime: Date.now() - 38_000,
+          endTime: Date.now(),
+          duration: 38_000,
+          pageUrl: readySummary.currentTab.url,
+          pageTitle: readySummary.currentTab.title,
+          browser: readySummary.browser,
+          viewport: { width: 1440, height: 900, devicePixelRatio: 1 },
+          extensionVersion: '0.4.0',
+        },
+        network,
+        console: [],
+        timeline: [],
+        redactionCount: 4,
+        baseFilename: 'bugcapture-demo',
+      },
+    };
     const runtime = {
-      sendMessage: async () => ({ ok: true, data: summary }),
+      sendMessage: async () => ({
+        ok: true,
+        data: window.sessionStorage.getItem('bugcapture-screenshot-state') === 'completed' ? completedSummary : readySummary,
+      }),
     };
     if (window.chrome) {
       Object.defineProperty(window.chrome, 'runtime', { configurable: true, value: runtime });
     } else {
       Object.defineProperty(window, 'chrome', { configurable: true, value: { runtime } });
     }
+
+    function networkEvent(requestId, method, url, status, duration, error = '') {
+      const parsed = new URL(url);
+      return {
+        requestId,
+        timestamp: Date.now() - 30_000 + Number(requestId) * 2_000,
+        method,
+        url,
+        host: parsed.host,
+        path: parsed.pathname,
+        query: parsed.search.slice(1),
+        status,
+        statusText: status === 500 ? 'Internal Server Error' : status === 200 ? 'OK' : '',
+        duration,
+        requestHeaders: [{ name: 'accept', value: 'application/json' }],
+        responseHeaders: [{ name: 'content-type', value: 'application/json' }],
+        mimeType: 'application/json',
+        resourceType: 'Fetch',
+        requestSize: 128,
+        responseSize: status ? 512 : 0,
+        error,
+        initiator: 'https://tracker.example.ru/app.js',
+      };
+    }
   });
   await page.goto(`http://127.0.0.1:${address.port}/popup.html`, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: 'Начать запись' }).waitFor();
   await mkdir(screenshotDirectory, { recursive: true });
   await page.locator('.app').screenshot({ path: screenshotPath });
+  await page.evaluate(() => window.sessionStorage.setItem('bugcapture-screenshot-state', 'completed'));
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: 'Посмотреть Network' }).click();
+  await page.getByRole('heading', { name: 'Network' }).waitFor();
+  await page.locator('.app').screenshot({ path: networkScreenshotPath });
   await context.close();
 } finally {
   await browser.close();
@@ -80,6 +144,7 @@ try {
 }
 
 console.log(`Скриншот сохранён: ${screenshotPath}`);
+console.log(`Скриншот Network Explorer сохранён: ${networkScreenshotPath}`);
 
 function findBrowser() {
   const candidates = [
