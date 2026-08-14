@@ -95,7 +95,10 @@ try {
     const runtime = {
       sendMessage: async () => ({
         ok: true,
-        data: window.sessionStorage.getItem('bugcapture-screenshot-state') === 'completed' ? completedSummary : readySummary,
+        data:
+          window.sessionStorage.getItem('bugcapture-screenshot-state') === 'completed'
+            ? completedSummary
+            : readySummary,
       }),
     };
     if (window.chrome) {

@@ -23,14 +23,7 @@ const manifest = {
   version,
   description: 'Записывает проблему во вкладке и создаёт безопасный диагностический отчёт.',
   minimum_chrome_version: '116',
-  permissions: [
-    'activeTab',
-    'debugger',
-    'downloads',
-    'offscreen',
-    'scripting',
-    'tabCapture',
-  ],
+  permissions: ['activeTab', 'debugger', 'downloads', 'offscreen', 'scripting', 'tabCapture'],
   host_permissions: ['http://*/*', 'https://*/*'],
   background: {
     service_worker: 'assets/background.js',
@@ -104,13 +97,27 @@ function createIcon(size) {
   line(center, center - size * 0.28, center - size * 0.12, center - size * 0.4, size * 0.045, accent);
   line(center, center - size * 0.28, center + size * 0.12, center - size * 0.4, size * 0.045, accent);
   for (const offset of [-0.14, 0, 0.14]) {
-    line(center - size * 0.22, center + size * offset, center - size * 0.37, center + size * (offset - 0.04), size * 0.05, accent);
-    line(center + size * 0.22, center + size * offset, center + size * 0.37, center + size * (offset - 0.04), size * 0.05, accent);
+    line(
+      center - size * 0.22,
+      center + size * offset,
+      center - size * 0.37,
+      center + size * (offset - 0.04),
+      size * 0.05,
+      accent,
+    );
+    line(
+      center + size * 0.22,
+      center + size * offset,
+      center + size * 0.37,
+      center + size * (offset - 0.04),
+      size * 0.05,
+      accent,
+    );
   }
   line(center, center - size * 0.07, center, center + size * 0.28, size * 0.035, dark);
 
   const scanline = size * 4 + 1;
-  const raw = Buffer.alloc((scanline) * size);
+  const raw = Buffer.alloc(scanline * size);
   for (let y = 0; y < size; y += 1) {
     raw[y * scanline] = 0;
     pixels.copy(raw, y * scanline + 1, y * size * 4, (y + 1) * size * 4);
@@ -120,7 +127,12 @@ function createIcon(size) {
   ihdr.writeUInt32BE(size, 0);
   ihdr.writeUInt32BE(size, 4);
   ihdr.set([8, 6, 0, 0, 0], 8);
-  return Buffer.concat([signature, pngChunk('IHDR', ihdr), pngChunk('IDAT', deflateSync(raw)), pngChunk('IEND', Buffer.alloc(0))]);
+  return Buffer.concat([
+    signature,
+    pngChunk('IHDR', ihdr),
+    pngChunk('IDAT', deflateSync(raw)),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
 }
 
 function pngChunk(type, data) {

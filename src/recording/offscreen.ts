@@ -38,7 +38,10 @@ connectKeepAlive();
 async function handleMessage(message: OffscreenMessage): Promise<unknown> {
   switch (message.action) {
     case 'START_RECORDING':
-      return startRecording(required(message.streamId, 'Не передан MediaStream ID.'), required(message.baseFilename, 'Не задано имя файла.'));
+      return startRecording(
+        required(message.streamId, 'Не передан MediaStream ID.'),
+        required(message.baseFilename, 'Не задано имя файла.'),
+      );
     case 'STOP_RECORDING':
       return stopRecording();
     case 'STORE_TEXT_ARTIFACTS':
@@ -89,7 +92,9 @@ async function stopRecording(): Promise<{ duration: number; size: number }> {
   const currentRecorder = recorder;
   await new Promise<void>((resolve, reject) => {
     currentRecorder.addEventListener('stop', () => resolve(), { once: true });
-    currentRecorder.addEventListener('error', () => reject(new Error('MediaRecorder не смог завершить запись.')), { once: true });
+    currentRecorder.addEventListener('error', () => reject(new Error('MediaRecorder не смог завершить запись.')), {
+      once: true,
+    });
     currentRecorder.stop();
   });
   for (const track of mediaStream?.getTracks() ?? []) track.stop();
@@ -122,7 +127,11 @@ function prepareArtifact(kind: 'video' | 'report' | 'har'): { url: string; filen
 }
 
 function selectMimeType(): string {
-  return ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find((type) => MediaRecorder.isTypeSupported(type)) ?? '';
+  return (
+    ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find((type) =>
+      MediaRecorder.isTypeSupported(type),
+    ) ?? ''
+  );
 }
 
 function required<T>(value: T | undefined, message: string): T {

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+release/
+coverage/
+public/icons/
+docs/screenshots/
+package-lock.json

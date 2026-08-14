@@ -140,7 +140,9 @@ describe('security regression: форматы credential', () => {
 
 describe('security regression: URL', () => {
   it.each(sensitiveNames)('очищает query-параметр %s', (name) => {
-    const result = sanitizeUrl(`https://example.test/api?${encodeURIComponent(name)}=${encodeURIComponent(FAKE_SECRET)}&id=42`);
+    const result = sanitizeUrl(
+      `https://example.test/api?${encodeURIComponent(name)}=${encodeURIComponent(FAKE_SECRET)}&id=42`,
+    );
     expect(result.value).not.toContain(FAKE_SECRET);
     expect(result.value).toContain(`${encodeURIComponent(name)}=${REDACTED}`);
     expect(result.value).toContain('id=42');
@@ -219,7 +221,12 @@ describe('security regression: Console и вложенные данные', () =
   });
 
   it('обрабатывает Map и использует строковый ключ как контекст', () => {
-    const result = sanitizeConsoleValue(new Map<string, unknown>([['serviceTicket', FAKE_SECRET], ['status', 401]]));
+    const result = sanitizeConsoleValue(
+      new Map<string, unknown>([
+        ['serviceTicket', FAKE_SECRET],
+        ['status', 401],
+      ]),
+    );
     expect(result.value).not.toContain(FAKE_SECRET);
     expect(result.value).toContain(REDACTED);
   });

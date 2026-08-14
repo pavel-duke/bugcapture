@@ -100,7 +100,10 @@ interface SanitizerState {
   remainingItems: number;
 }
 
-export function isSensitiveFieldName(name: string, safeFieldAllowlist: Iterable<string> = SAFE_FIELD_ALLOWLIST): boolean {
+export function isSensitiveFieldName(
+  name: string,
+  safeFieldAllowlist: Iterable<string> = SAFE_FIELD_ALLOWLIST,
+): boolean {
   const normalized = normalizeFieldName(name);
   const allowlist = safeFieldAllowlist instanceof Set ? safeFieldAllowlist : new Set(safeFieldAllowlist);
   if ([...allowlist].some((safeName) => normalizeFieldName(safeName) === normalized)) return false;
@@ -430,10 +433,12 @@ function normalizeUnknown(value: unknown, state: SanitizerState, depth: number, 
   if (value instanceof Date) return value.toISOString();
   if (Object.prototype.toString.call(value) === '[object Promise]') return '[Promise]';
   if (value instanceof Map) {
-    return [...value.entries()].slice(0, state.options.maxCollectionItems).map(([key, nested]) => [
-      normalizeUnknown(key, state, depth + 1),
-      normalizeUnknown(nested, state, depth + 1, typeof key === 'string' ? key : undefined),
-    ]);
+    return [...value.entries()]
+      .slice(0, state.options.maxCollectionItems)
+      .map(([key, nested]) => [
+        normalizeUnknown(key, state, depth + 1),
+        normalizeUnknown(nested, state, depth + 1, typeof key === 'string' ? key : undefined),
+      ]);
   }
   if (value instanceof Set) {
     return normalizeUnknown([...value.values()].slice(0, state.options.maxCollectionItems), state, depth + 1);
@@ -475,7 +480,9 @@ function normalizeFieldName(name: string): string {
 function looksLikeRandomCredential(value: string): boolean {
   if (/^[0-9a-f]{32,}$/i.test(value)) return false;
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) return false;
-  const classes = [/[a-z]/.test(value), /[A-Z]/.test(value), /\d/.test(value), /[_+/=-]/.test(value)].filter(Boolean).length;
+  const classes = [/[a-z]/.test(value), /[A-Z]/.test(value), /\d/.test(value), /[_+/=-]/.test(value)].filter(
+    Boolean,
+  ).length;
   return classes >= 3;
 }
 

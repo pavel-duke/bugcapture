@@ -1,7 +1,7 @@
 name: Предложить улучшение
 description: Новая функция или изменение поведения BugCapture
-title: "[Идея]: "
-labels: ["enhancement"]
+title: '[Идея]: '
+labels: ['enhancement']
 body:
   - type: textarea
     id: problem

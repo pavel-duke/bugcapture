@@ -1,7 +1,7 @@
 name: Сообщить об ошибке
 description: Помогите воспроизвести проблему в BugCapture
-title: "[Ошибка]: "
-labels: ["bug"]
+title: '[Ошибка]: '
+labels: ['bug']
 body:
   - type: markdown
     attributes:

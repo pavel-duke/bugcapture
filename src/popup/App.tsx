@@ -36,7 +36,8 @@ export function App({ client = popupClient }: AppProps) {
 
   useEffect(() => {
     let active = true;
-    void client.getStatus()
+    void client
+      .getStatus()
       .then((nextSummary) => {
         if (active) setSummary(nextSummary);
       })
@@ -161,10 +162,23 @@ function ReadyView({ summary, busy, onStart }: { summary: CaptureSummary; busy: 
   );
 }
 
-function RecordingView({ summary, busy, onMark, onStop }: { summary: CaptureSummary; busy: boolean; onMark: () => void; onStop: () => void }) {
+function RecordingView({
+  summary,
+  busy,
+  onMark,
+  onStop,
+}: {
+  summary: CaptureSummary;
+  busy: boolean;
+  onMark: () => void;
+  onStop: () => void;
+}) {
   return (
     <section className="state recording-view" aria-live="polite">
-      <div className="recording-status"><span />Запись</div>
+      <div className="recording-status">
+        <span />
+        Запись
+      </div>
       <div className="timer">{formatDuration(summary.duration)}</div>
       <p className="recording-target">{summary.currentTab?.hostname}</p>
 
@@ -192,7 +206,12 @@ function ProcessingView() {
   );
 }
 
-function CompletedView({ summary, busy, onExplore, onDownload }: {
+function CompletedView({
+  summary,
+  busy,
+  onExplore,
+  onDownload,
+}: {
   summary: CaptureSummary;
   busy: boolean;
   onExplore: () => void;
@@ -200,9 +219,13 @@ function CompletedView({ summary, busy, onExplore, onDownload }: {
 }) {
   return (
     <section className="state completed-view">
-      <span className="complete-icon"><CheckIcon /></span>
+      <span className="complete-icon">
+        <CheckIcon />
+      </span>
       <h2>Готово</h2>
-      <p>{formatDuration(summary.duration)} · {summary.requestCount} запросов</p>
+      <p>
+        {formatDuration(summary.duration)} · {summary.requestCount} запросов
+      </p>
       <span className="download-status">
         {summary.downloadsStarted ? 'Пакет скачан' : 'Проверьте Network перед экспортом'}
       </span>
@@ -212,7 +235,9 @@ function CompletedView({ summary, busy, onExplore, onDownload }: {
       </button>
       <button className="download-button" disabled={busy} onClick={onDownload}>
         <DownloadIcon />
-        <span>{busy ? 'Скачиваем…' : summary.downloadsStarted ? 'Скачать пакет повторно' : 'Экспортировать файлы'}</span>
+        <span>
+          {busy ? 'Скачиваем…' : summary.downloadsStarted ? 'Скачать пакет повторно' : 'Экспортировать файлы'}
+        </span>
       </button>
     </section>
   );
@@ -230,7 +255,13 @@ const NETWORK_FILTERS: Array<{ value: NetworkFilter; label: string }> = [
   { value: 'failed', label: 'Failed' },
 ];
 
-function NetworkExplorer({ events, busy, downloadsStarted, onBack, onDownload }: {
+function NetworkExplorer({
+  events,
+  busy,
+  downloadsStarted,
+  onBack,
+  onDownload,
+}: {
   events: NetworkEvent[];
   busy: boolean;
   downloadsStarted?: boolean;
@@ -249,8 +280,9 @@ function NetworkExplorer({ events, busy, downloadsStarted, onBack, onDownload }:
       if (problemsOnly && !isProblemRequest(event)) return false;
       if (!matchesFilter(event, filter)) return false;
       if (!normalizedQuery) return true;
-      return [event.url, event.method, String(event.status), event.host]
-        .some((value) => value.toLowerCase().includes(normalizedQuery));
+      return [event.url, event.method, String(event.status), event.host].some((value) =>
+        value.toLowerCase().includes(normalizedQuery),
+      );
     });
   }, [filter, problemsOnly, query, safeEvents]);
   const selected = filtered.find((event) => event.requestId === selectedId) ?? filtered[0];
@@ -258,9 +290,19 @@ function NetworkExplorer({ events, busy, downloadsStarted, onBack, onDownload }:
   return (
     <section className="network-explorer">
       <div className="explorer-heading">
-        <button className="back-button" onClick={onBack} aria-label="Назад к результату"><BackIcon /></button>
-        <div><h2>Network</h2><span>Локальный просмотр</span></div>
-        <button className="compact-download" disabled={busy} onClick={onDownload} aria-label={downloadsStarted ? 'Скачать пакет повторно' : 'Экспортировать файлы'}>
+        <button className="back-button" onClick={onBack} aria-label="Назад к результату">
+          <BackIcon />
+        </button>
+        <div>
+          <h2>Network</h2>
+          <span>Локальный просмотр</span>
+        </div>
+        <button
+          className="compact-download"
+          disabled={busy}
+          onClick={onDownload}
+          aria-label={downloadsStarted ? 'Скачать пакет повторно' : 'Экспортировать файлы'}
+        >
           <DownloadIcon />
         </button>
       </div>
@@ -302,17 +344,26 @@ function NetworkExplorer({ events, busy, downloadsStarted, onBack, onDownload }:
 
       <div className="network-workspace">
         <div className="request-list" aria-label="Список запросов">
-          {filtered.length ? filtered.map((event) => (
-            <button
-              key={`${event.requestId}-${event.timestamp}`}
-              className={selected?.requestId === event.requestId ? 'request-row selected' : 'request-row'}
-              onClick={() => setSelectedId(event.requestId)}
-            >
-              <span className={`status-code ${statusTone(event)}`}>{event.status || 'ERR'}</span>
-              <span className="request-copy"><strong>{event.method} {event.path || event.url}</strong><small>{event.host}</small></span>
-              <span className="request-duration">{Math.round(event.duration)} ms</span>
-            </button>
-          )) : <p className="empty-network">Запросы не найдены</p>}
+          {filtered.length ? (
+            filtered.map((event) => (
+              <button
+                key={`${event.requestId}-${event.timestamp}`}
+                className={selected?.requestId === event.requestId ? 'request-row selected' : 'request-row'}
+                onClick={() => setSelectedId(event.requestId)}
+              >
+                <span className={`status-code ${statusTone(event)}`}>{event.status || 'ERR'}</span>
+                <span className="request-copy">
+                  <strong>
+                    {event.method} {event.path || event.url}
+                  </strong>
+                  <small>{event.host}</small>
+                </span>
+                <span className="request-duration">{Math.round(event.duration)} ms</span>
+              </button>
+            ))
+          ) : (
+            <p className="empty-network">Запросы не найдены</p>
+          )}
         </div>
 
         {selected && <RequestDetails event={selected} />}
@@ -322,7 +373,12 @@ function NetworkExplorer({ events, busy, downloadsStarted, onBack, onDownload }:
 }
 
 function NetworkMetric({ label, value, danger = false }: { label: string; value: number; danger?: boolean }) {
-  return <div className={danger && value > 0 ? 'metric danger' : 'metric'}><strong>{value}</strong><span>{label}</span></div>;
+  return (
+    <div className={danger && value > 0 ? 'metric danger' : 'metric'}>
+      <strong>{value}</strong>
+      <span>{label}</span>
+    </div>
+  );
 }
 
 function RequestDetails({ event }: { event: NetworkEvent }) {
@@ -335,10 +391,26 @@ function RequestDetails({ event }: { event: NetworkEvent }) {
       </div>
       <p className="details-url">{event.url}</p>
       <dl>
-        <div><dt>Тип</dt><dd>{event.resourceType || 'Other'}</dd></div>
-        <div><dt>Время</dt><dd>{formatTimestamp(event.timestamp)}</dd></div>
-        {event.initiator && <div><dt>Initiator</dt><dd>{event.initiator}</dd></div>}
-        {event.error && <div className="error-detail"><dt>Ошибка</dt><dd>{event.error}</dd></div>}
+        <div>
+          <dt>Тип</dt>
+          <dd>{event.resourceType || 'Other'}</dd>
+        </div>
+        <div>
+          <dt>Время</dt>
+          <dd>{formatTimestamp(event.timestamp)}</dd>
+        </div>
+        {event.initiator && (
+          <div>
+            <dt>Initiator</dt>
+            <dd>{event.initiator}</dd>
+          </div>
+        )}
+        {event.error && (
+          <div className="error-detail">
+            <dt>Ошибка</dt>
+            <dd>{event.error}</dd>
+          </div>
+        )}
       </dl>
       <HeaderDetails title="Request headers" headers={event.requestHeaders} />
       <HeaderDetails title="Response headers" headers={event.responseHeaders} />
@@ -349,11 +421,20 @@ function RequestDetails({ event }: { event: NetworkEvent }) {
 function HeaderDetails({ title, headers }: { title: string; headers: HeaderEntry[] }) {
   return (
     <details>
-      <summary>{title} <span>{headers.length}</span></summary>
+      <summary>
+        {title} <span>{headers.length}</span>
+      </summary>
       <div className="header-list">
-        {headers.length ? headers.map((header, index) => (
-          <p key={`${header.name}-${index}`}><strong>{header.name}</strong><span>{header.value}</span></p>
-        )) : <p>Нет данных</p>}
+        {headers.length ? (
+          headers.map((header, index) => (
+            <p key={`${header.name}-${index}`}>
+              <strong>{header.name}</strong>
+              <span>{header.value}</span>
+            </p>
+          ))
+        ) : (
+          <p>Нет данных</p>
+        )}
       </div>
     </details>
   );
@@ -428,15 +509,80 @@ function errorMessage(error: unknown): string {
 }
 
 const Icon = ({ children }: { children: ReactNode }) => (
-  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">{children}</svg>
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    {children}
+  </svg>
 );
 
-function BrandIcon() { return <span className="brand-icon"><Icon><path d="M8.3 5.5 6.8 3.7M15.7 5.5l1.5-1.8M5.7 9H3.2m15.1 0h2.5M5.5 14H3m15.5 0H21M8.1 19.2 6.5 21m9.4-1.8 1.6 1.8"/><path d="M7 8.8A5 5 0 0 1 12 4a5 5 0 0 1 5 4.8v5.7a5 5 0 0 1-10 0V8.8Z"/><path d="M7 11h10M12 4v15.3"/></Icon></span>; }
-function MarkerIcon() { return <Icon><path d="M6 4.5h12v16L12 17l-6 3.5v-16Z"/></Icon>; }
-function AlertIcon() { return <Icon><path d="M12 3.5 21 20H3l9-16.5Z"/><path d="M12 9v5m0 3h.01"/></Icon>; }
-function CheckIcon() { return <Icon><path d="m5 12.5 4.3 4.3L19 7"/></Icon>; }
-function DownloadIcon() { return <Icon><path d="M12 4v11m-4-4 4 4 4-4M5 20h14"/></Icon>; }
-function NetworkIcon() { return <Icon><circle cx="6" cy="17" r="2.2"/><circle cx="18" cy="7" r="2.2"/><path d="m7.8 15.6 8.4-7.2M7.5 7.5h4v4"/></Icon>; }
-function BackIcon() { return <Icon><path d="m15 18-6-6 6-6"/></Icon>; }
-function SearchIcon() { return <Icon><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></Icon>; }
-function GithubIcon() { return <Icon><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3.3-.4 6.8-1.6 6.8-7A5.4 5.4 0 0 0 19.4 4 5 5 0 0 0 19.3.5S18.2.1 15 1.8a12 12 0 0 0-6 0C5.8.1 4.7.5 4.7.5A5 5 0 0 0 4.6 4a5.4 5.4 0 0 0-1.4 3.7c0 5.3 3.5 6.5 6.8 6.9a4.8 4.8 0 0 0-1 3.4v4"/><path d="M9 18c-3 .9-3-1.5-4.2-2"/></Icon>; }
+function BrandIcon() {
+  return (
+    <span className="brand-icon">
+      <Icon>
+        <path d="M8.3 5.5 6.8 3.7M15.7 5.5l1.5-1.8M5.7 9H3.2m15.1 0h2.5M5.5 14H3m15.5 0H21M8.1 19.2 6.5 21m9.4-1.8 1.6 1.8" />
+        <path d="M7 8.8A5 5 0 0 1 12 4a5 5 0 0 1 5 4.8v5.7a5 5 0 0 1-10 0V8.8Z" />
+        <path d="M7 11h10M12 4v15.3" />
+      </Icon>
+    </span>
+  );
+}
+function MarkerIcon() {
+  return (
+    <Icon>
+      <path d="M6 4.5h12v16L12 17l-6 3.5v-16Z" />
+    </Icon>
+  );
+}
+function AlertIcon() {
+  return (
+    <Icon>
+      <path d="M12 3.5 21 20H3l9-16.5Z" />
+      <path d="M12 9v5m0 3h.01" />
+    </Icon>
+  );
+}
+function CheckIcon() {
+  return (
+    <Icon>
+      <path d="m5 12.5 4.3 4.3L19 7" />
+    </Icon>
+  );
+}
+function DownloadIcon() {
+  return (
+    <Icon>
+      <path d="M12 4v11m-4-4 4 4 4-4M5 20h14" />
+    </Icon>
+  );
+}
+function NetworkIcon() {
+  return (
+    <Icon>
+      <circle cx="6" cy="17" r="2.2" />
+      <circle cx="18" cy="7" r="2.2" />
+      <path d="m7.8 15.6 8.4-7.2M7.5 7.5h4v4" />
+    </Icon>
+  );
+}
+function BackIcon() {
+  return (
+    <Icon>
+      <path d="m15 18-6-6 6-6" />
+    </Icon>
+  );
+}
+function SearchIcon() {
+  return (
+    <Icon>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4 4" />
+    </Icon>
+  );
+}
+function GithubIcon() {
+  return (
+    <Icon>
+      <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3.3-.4 6.8-1.6 6.8-7A5.4 5.4 0 0 0 19.4 4 5 5 0 0 0 19.3.5S18.2.1 15 1.8a12 12 0 0 0-6 0C5.8.1 4.7.5 4.7.5A5 5 0 0 0 4.6 4a5.4 5.4 0 0 0-1.4 3.7c0 5.3 3.5 6.5 6.8 6.9a4.8 4.8 0 0 0-1 3.4v4" />
+      <path d="M9 18c-3 .9-3-1.5-4.2-2" />
+    </Icon>
+  );
+}

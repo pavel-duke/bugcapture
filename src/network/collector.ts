@@ -116,7 +116,8 @@ export class NetworkCollector {
         method: this.cleanString(String(request.method ?? 'GET')),
         url: this.cleanUrl(String(request.url ?? '')),
         resourceType: this.cleanString(String(params.type ?? 'Other')),
-        requestHeaders: this.extraRequestHeaders.get(requestId) ?? this.cleanHeaders(headersFromProtocol(request.headers)),
+        requestHeaders:
+          this.extraRequestHeaders.get(requestId) ?? this.cleanHeaders(headersFromProtocol(request.headers)),
         responseHeaders: [],
         status: 0,
         statusText: '',
@@ -257,7 +258,11 @@ function mergeHeaders(primary: HeaderEntry[], extra: HeaderEntry[]): HeaderEntry
 
 function estimateRequestSize(request: Record<string, any>): number {
   const headers = headersFromProtocol(request.headers);
-  return request.method.length + String(request.url ?? '').length + headers.reduce((total, header) => total + header.name.length + header.value.length + 4, 0);
+  return (
+    request.method.length +
+    String(request.url ?? '').length +
+    headers.reduce((total, header) => total + header.name.length + header.value.length + 4, 0)
+  );
 }
 
 function extractInitiator(initiator: Record<string, any> | undefined): string {

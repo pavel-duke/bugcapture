@@ -2,7 +2,13 @@ import { browserAdapter } from '../browser/chromium';
 import { createSafeHar } from '../har';
 import { NetworkCollector } from '../network/collector';
 import { createTextReport } from '../report/text';
-import { sanitizeCaptureResult, sanitizeConsoleEvent, sanitizeNetworkEvent, sanitizeString, sanitizeUrl } from '../sanitizer';
+import {
+  sanitizeCaptureResult,
+  sanitizeConsoleEvent,
+  sanitizeNetworkEvent,
+  sanitizeString,
+  sanitizeUrl,
+} from '../sanitizer';
 import type {
   ArtifactKind,
   BrowserInfo,
@@ -68,7 +74,9 @@ export class CaptureController {
       startedAt: this.session?.startTime,
       duration: this.result?.metadata.duration ?? (this.session ? now - this.session.startTime : 0),
       requestCount: this.result?.network.length ?? networkStats.requestCount,
-      httpErrorCount: this.result?.network.filter((event) => event.status >= 400 || event.error).length ?? networkStats.httpErrorCount,
+      httpErrorCount:
+        this.result?.network.filter((event) => event.status >= 400 || event.error).length ??
+        networkStats.httpErrorCount,
       consoleErrorCount:
         this.result?.console.filter((event) => event.level !== 'warn').length ??
         this.session?.console.filter((event) => event.level !== 'warn').length ??
@@ -148,10 +156,7 @@ export class CaptureController {
 
     try {
       await this.stopContentCapture(session.tab.id);
-      const [rawNetwork] = await Promise.all([
-        this.network.stop(),
-        this.sendOffscreen('STOP_RECORDING'),
-      ]);
+      const [rawNetwork] = await Promise.all([this.network.stop(), this.sendOffscreen('STOP_RECORDING')]);
 
       const safeNetwork = rawNetwork.map((event) => {
         const sanitized = sanitizeNetworkEvent(event);
@@ -290,7 +295,11 @@ export class CaptureController {
 
   private async sendOffscreen(action: string, payload: Record<string, unknown> = {}): Promise<unknown> {
     await browserAdapter.ensureOffscreenDocument();
-    const response = (await chrome.runtime.sendMessage({ target: 'offscreen', action, ...payload })) as OffscreenResponse;
+    const response = (await chrome.runtime.sendMessage({
+      target: 'offscreen',
+      action,
+      ...payload,
+    })) as OffscreenResponse;
     if (!response?.ok) throw new Error(response?.error || `Offscreen command ${action} failed.`);
     return response.data;
   }
