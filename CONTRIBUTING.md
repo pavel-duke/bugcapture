@@ -15,7 +15,7 @@ npm ci
 npm run verify
 ```
 
-Pull request должен проходить lint, typecheck, tests и production build.
+Pull request должен проходить format check, lint, typecheck, tests, `npm audit`, production build и security checks.
 
 ## Коммиты
 

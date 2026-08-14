@@ -2,6 +2,43 @@
 
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версия проекта следует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [0.4.0] — 2026-08-14
+
+### Добавлено
+
+- локальный Network Explorer с поиском по URL, method, status и host;
+- фильтры All, Errors, 2xx, 3xx, 4xx, 5xx, Failed и быстрый режим проблемных запросов;
+- безопасная карточка запроса с headers, duration, resource type, timestamp и initiator без bodies;
+- 267 security regression-кейсов sanitizer и deterministic fuzz-варианты;
+- CodeQL, Gitleaks, Dependabot, production bundle security check и release content check;
+- SHA-256 и CycloneDX SBOM для release artifact;
+- Prettier format check в обязательный CI.
+
+### Изменено
+
+- экспорт запускается пользователем после локального просмотра Network;
+- Network URL и headers очищаются во время сбора, Console — до передачи из страницы;
+- preview, TXT и safe HAR выполняют отдельную финальную sanitization;
+- sanitizer учитывает sensitive field names в snake_case, kebab-case, camelCase, любом регистре и `X-*` headers;
+- URL sanitizer очищает credentials, fragment, signed URL, nested URL и encoded значения;
+- Console sanitizer ограничивает глубину, число элементов и размер и поддерживает Error, Map, Set и cyclic object;
+- GitHub Actions закреплены на точных commit SHA.
+
+### Безопасность
+
+- удалено разрешение `tabs`;
+- `<all_urls>` заменён на точные HTTP/HTTPS host permissions;
+- постоянные content scripts удалены из manifest и подключаются только во время записи;
+- добавлены лимиты 1000 Console events и 5000 Network events;
+- обычный UUID без чувствительного контекста больше не маскируется;
+- `npm audit` не обнаружил известных уязвимостей;
+- Gitleaks не обнаружил реальных секретов в полной истории репозитория.
+
+### Исправлено
+
+- закрыт обход sanitizer через вложенный JSON и чувствительные object fields;
+- экспорт больше не доверяет только очистке, выполненной во время сбора.
+
 ## [0.3.0] — 2026-08-14
 
 ### Добавлено
@@ -65,6 +102,7 @@
 - production ZIP и автоматизация GitHub Release;
 - русская документация установки.
 
+[0.4.0]: https://github.com/pavel-duke/bugcapture/releases/tag/v0.4.0
 [0.3.0]: https://github.com/pavel-duke/bugcapture/releases/tag/v0.3.0
 [0.2.0]: https://github.com/pavel-duke/bugcapture/releases/tag/v0.2.0
 [0.1.0]: https://github.com/pavel-duke/bugcapture/releases/tag/v0.1.0
