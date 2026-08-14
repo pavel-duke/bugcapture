@@ -1,0 +1,10 @@
+node_modules/
+dist/
+release/
+coverage/
+public/manifest.json
+public/icons/*.png
+src/generated/version.ts
+*.log
+.DS_Store
+.manual/
