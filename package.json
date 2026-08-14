@@ -1,6 +1,6 @@
 {
   "name": "bugcapture",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Локальное расширение для записи браузерных ошибок и безопасного сбора диагностики",
   "type": "module",
@@ -17,7 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run package",
-    "demo": "node scripts/demo-server.mjs"
+    "demo": "node scripts/demo-server.mjs",
+    "screenshot": "npm run build && node scripts/capture-popup.mjs"
   },
   "engines": {
     "node": ">=20.19.0"
@@ -41,6 +42,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-react-refresh": "0.5.4",
     "jsdom": "30.0.1",
+    "playwright-core": "1.62.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.67.0",
     "vite": "8.2.1",

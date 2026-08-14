@@ -47,7 +47,7 @@ function fixture(): CaptureResult {
       pageTitle: 'Тикет 123',
       browser: { name: 'Яндекс Браузер', version: '26.6', os: 'Windows 11', userAgent: 'test' },
       viewport: { width: 1440, height: 900, devicePixelRatio: 1 },
-      extensionVersion: '0.1.0',
+      extensionVersion: '0.2.0',
     },
     network: [network.value],
     console: [console.value],

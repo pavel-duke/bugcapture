@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { App } from '../src/popup/App';
 import type { PopupClient } from '../src/popup/client';
@@ -25,7 +25,52 @@ describe('Popup', () => {
     render(<App client={client} />);
 
     expect(await screen.findByText('example.ru')).toBeInTheDocument();
-    expect(screen.getByText('Яндекс Браузер')).toBeInTheDocument();
+    expect(screen.getByText('Браузер: Яндекс Браузер')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Начать запись' })).toBeEnabled();
+  });
+
+  it('скачивает весь пакет и отдельный файл с экрана результата', async () => {
+    const download = vi.fn().mockResolvedValue(undefined);
+    const client: PopupClient = {
+      getStatus: vi.fn().mockResolvedValue({
+        status: 'completed',
+        duration: 12_000,
+        requestCount: 14,
+        httpErrorCount: 1,
+        consoleErrorCount: 1,
+        consoleWarningCount: 0,
+        downloadsStarted: true,
+        result: {
+          metadata: {
+            sessionId: 'session',
+            startTime: 1,
+            endTime: 12_001,
+            duration: 12_000,
+            pageUrl: 'https://example.ru',
+            pageTitle: 'Example',
+            browser: { name: 'Яндекс Браузер', version: '26.6', os: 'Windows 11', userAgent: 'test' },
+            viewport: { width: 1440, height: 900, devicePixelRatio: 1 },
+            extensionVersion: '0.2.0',
+          },
+          network: [],
+          console: [],
+          timeline: [],
+          redactionCount: 3,
+          baseFilename: 'bugcapture-test',
+        },
+      }),
+      start: vi.fn(),
+      stop: vi.fn(),
+      markProblem: vi.fn(),
+      download,
+    };
+
+    render(<App client={client} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Скачать весь пакет' }));
+    await waitFor(() => expect(download).toHaveBeenCalledWith(undefined));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Скачать Запись экрана' }));
+    await waitFor(() => expect(download).toHaveBeenCalledWith('video'));
   });
 });
