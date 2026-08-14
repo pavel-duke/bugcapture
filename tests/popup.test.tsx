@@ -29,7 +29,38 @@ describe('Popup', () => {
     expect(screen.getByRole('button', { name: 'Начать запись' })).toBeEnabled();
   });
 
-  it('скачивает весь пакет и отдельный файл с экрана результата', async () => {
+  it('показывает кнопку отметки во время записи', async () => {
+    const markProblem = vi.fn().mockResolvedValue({
+      status: 'recording',
+      duration: 5_000,
+      requestCount: 2,
+      httpErrorCount: 0,
+      consoleErrorCount: 0,
+      consoleWarningCount: 0,
+    });
+    const client: PopupClient = {
+      getStatus: vi.fn().mockResolvedValue({
+        status: 'recording',
+        duration: 5_000,
+        requestCount: 2,
+        httpErrorCount: 0,
+        consoleErrorCount: 0,
+        consoleWarningCount: 0,
+        currentTab: { id: 1, url: 'https://example.ru', title: 'Пример', hostname: 'example.ru', windowId: 1 },
+      }),
+      start: vi.fn(),
+      stop: vi.fn(),
+      markProblem,
+      download: vi.fn(),
+    };
+
+    render(<App client={client} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Отметить момент' }));
+    await waitFor(() => expect(markProblem).toHaveBeenCalledOnce());
+  });
+
+  it('повторно скачивает весь пакет с экрана результата', async () => {
     const download = vi.fn().mockResolvedValue(undefined);
     const client: PopupClient = {
       getStatus: vi.fn().mockResolvedValue({
@@ -50,7 +81,7 @@ describe('Popup', () => {
             pageTitle: 'Example',
             browser: { name: 'Яндекс Браузер', version: '26.6', os: 'Windows 11', userAgent: 'test' },
             viewport: { width: 1440, height: 900, devicePixelRatio: 1 },
-            extensionVersion: '0.2.0',
+            extensionVersion: '0.3.0',
           },
           network: [],
           console: [],
@@ -67,10 +98,7 @@ describe('Popup', () => {
 
     render(<App client={client} />);
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Скачать весь пакет' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Скачать пакет повторно' }));
     await waitFor(() => expect(download).toHaveBeenCalledWith(undefined));
-
-    fireEvent.click(screen.getByRole('button', { name: 'Скачать Запись экрана' }));
-    await waitFor(() => expect(download).toHaveBeenCalledWith('video'));
   });
 });

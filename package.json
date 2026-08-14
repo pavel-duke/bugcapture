@@ -1,6 +1,6 @@
 {
   "name": "bugcapture",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Локальное расширение для записи браузерных ошибок и безопасного сбора диагностики",
   "type": "module",
