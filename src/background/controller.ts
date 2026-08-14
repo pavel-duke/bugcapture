@@ -2,7 +2,7 @@ import { browserAdapter } from '../browser/chromium';
 import { createSafeHar } from '../har';
 import { NetworkCollector } from '../network/collector';
 import { createTextReport } from '../report/text';
-import { sanitizeConsoleEvent, sanitizeNetworkEvent, sanitizeString, sanitizeUrl } from '../sanitizer';
+import { sanitizeCaptureResult, sanitizeConsoleEvent, sanitizeNetworkEvent, sanitizeString, sanitizeUrl } from '../sanitizer';
 import type {
   ArtifactKind,
   BrowserInfo,
@@ -158,6 +158,7 @@ export class CaptureController {
         session.redactionCount += sanitized.redactionCount;
         return sanitized.value;
       });
+      session.redactionCount += this.network.getRedactionCount();
       const pageUrl = sanitizeUrl(session.tab.url);
       const pageTitle = sanitizeString(session.tab.title);
       session.redactionCount += pageUrl.redactionCount + pageTitle.redactionCount;
@@ -191,14 +192,15 @@ export class CaptureController {
         { timestamp: endTime, type: 'recording' as const, text: 'Запись остановлена' },
       ].sort((a, b) => a.timestamp - b.timestamp);
 
-      this.result = {
+      const finalResult = sanitizeCaptureResult({
         metadata,
         network: safeNetwork,
         console: session.console,
         timeline,
         redactionCount: session.redactionCount,
         baseFilename: session.baseFilename,
-      };
+      });
+      this.result = finalResult.value;
       const report = createTextReport(this.result);
       const har = createSafeHar(this.result);
       await this.sendOffscreen('STORE_TEXT_ARTIFACTS', {
@@ -210,12 +212,6 @@ export class CaptureController {
       this.status = 'completed';
       this.session = null;
       await this.updateBadge();
-      try {
-        await this.downloadAllArtifacts();
-        this.downloadsStarted = true;
-      } catch (downloadError) {
-        this.error = `Файлы готовы, но автоматическое скачивание не началось: ${errorMessage(downloadError)}`;
-      }
       return this.getSummary();
     } catch (error) {
       this.status = 'error';
@@ -228,6 +224,7 @@ export class CaptureController {
 
   addContentEvent(sessionId: string, event: ConsoleEvent): void {
     if (!this.session || this.status !== 'recording' || sessionId !== this.session.id) return;
+    if (this.session.console.length >= 1_000) return;
     const sanitized = sanitizeConsoleEvent(event);
     this.session.console.push(sanitized.value);
     this.session.redactionCount += sanitized.redactionCount;
@@ -250,6 +247,7 @@ export class CaptureController {
       return;
     }
     await this.downloadAllArtifacts();
+    this.downloadsStarted = true;
   }
 
   async handleTabUpdated(tabId: number): Promise<void> {

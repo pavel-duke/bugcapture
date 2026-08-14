@@ -1,4 +1,7 @@
 import type { HeaderEntry, NetworkEvent } from '../types';
+import { sanitizeHeaders, sanitizeNetworkEvent, sanitizeString, sanitizeUrl } from '../sanitizer';
+
+const MAX_NETWORK_EVENTS = 5_000;
 
 interface PendingRequest {
   requestId: string;
@@ -15,6 +18,7 @@ interface PendingRequest {
   requestSize: number;
   responseSize: number;
   error: string;
+  initiator?: string;
 }
 
 export class NetworkCollector {
@@ -23,6 +27,7 @@ export class NetworkCollector {
   private completed: NetworkEvent[] = [];
   private extraRequestHeaders = new Map<string, HeaderEntry[]>();
   private extraResponseHeaders = new Map<string, HeaderEntry[]>();
+  private redactionCount = 0;
   private readonly onUnexpectedDetach?: (reason: string) => void;
 
   constructor(onUnexpectedDetach?: (reason: string) => void) {
@@ -33,6 +38,9 @@ export class NetworkCollector {
     this.tabId = tabId;
     this.pending.clear();
     this.completed = [];
+    this.extraRequestHeaders.clear();
+    this.extraResponseHeaders.clear();
+    this.redactionCount = 0;
     chrome.debugger.onEvent.addListener(this.handleEvent);
     chrome.debugger.onDetach.addListener(this.handleDetach);
     try {
@@ -80,6 +88,10 @@ export class NetworkCollector {
     };
   }
 
+  getRedactionCount(): number {
+    return this.redactionCount;
+  }
+
   private readonly handleEvent = (
     source: chrome.debugger.Debuggee,
     method: string,
@@ -95,15 +107,16 @@ export class NetworkCollector {
         this.applyResponse(previous, params.redirectResponse);
         this.finalize(requestId, Number(params.timestamp));
       }
+      if (!previous && this.pending.size + this.completed.length >= MAX_NETWORK_EVENTS) return;
       const request = params.request ?? {};
       this.pending.set(requestId, {
         requestId,
         timestamp: Number(params.wallTime ? params.wallTime * 1000 : Date.now()),
         monotonicStart: Number(params.timestamp ?? 0),
-        method: String(request.method ?? 'GET'),
-        url: String(request.url ?? ''),
-        resourceType: String(params.type ?? 'Other'),
-        requestHeaders: this.extraRequestHeaders.get(requestId) ?? headersFromProtocol(request.headers),
+        method: this.cleanString(String(request.method ?? 'GET')),
+        url: this.cleanUrl(String(request.url ?? '')),
+        resourceType: this.cleanString(String(params.type ?? 'Other')),
+        requestHeaders: this.extraRequestHeaders.get(requestId) ?? this.cleanHeaders(headersFromProtocol(request.headers)),
         responseHeaders: [],
         status: 0,
         statusText: '',
@@ -111,13 +124,14 @@ export class NetworkCollector {
         requestSize: estimateRequestSize(request),
         responseSize: 0,
         error: '',
+        initiator: this.cleanUrlOrString(extractInitiator(params.initiator)),
       });
       this.extraRequestHeaders.delete(requestId);
       return;
     }
 
     if (method === 'Network.requestWillBeSentExtraInfo') {
-      const headers = headersFromProtocol(params.headers);
+      const headers = this.cleanHeaders(headersFromProtocol(params.headers));
       const pending = this.pending.get(requestId);
       if (pending) pending.requestHeaders = headers;
       else this.extraRequestHeaders.set(requestId, headers);
@@ -131,7 +145,7 @@ export class NetworkCollector {
     }
 
     if (method === 'Network.responseReceivedExtraInfo') {
-      const headers = headersFromProtocol(params.headers);
+      const headers = this.cleanHeaders(headersFromProtocol(params.headers));
       const pending = this.pending.get(requestId);
       if (pending) pending.responseHeaders = mergeHeaders(pending.responseHeaders, headers);
       else this.extraResponseHeaders.set(requestId, headers);
@@ -147,7 +161,7 @@ export class NetworkCollector {
 
     if (method === 'Network.loadingFailed') {
       const pending = this.pending.get(requestId);
-      if (pending) pending.error = String(params.errorText ?? 'Network request failed');
+      if (pending) pending.error = this.cleanString(failureDescription(params));
       this.finalize(requestId, Number(params.timestamp));
     }
   };
@@ -161,10 +175,10 @@ export class NetworkCollector {
 
   private applyResponse(pending: PendingRequest, response: Record<string, any>): void {
     pending.status = Number(response.status ?? 0);
-    pending.statusText = String(response.statusText ?? '');
-    pending.mimeType = String(response.mimeType ?? '');
+    pending.statusText = this.cleanString(String(response.statusText ?? ''));
+    pending.mimeType = this.cleanString(String(response.mimeType ?? ''));
     pending.responseHeaders = mergeHeaders(
-      headersFromProtocol(response.headers),
+      this.cleanHeaders(headersFromProtocol(response.headers)),
       this.extraResponseHeaders.get(pending.requestId) ?? [],
     );
     this.extraResponseHeaders.delete(pending.requestId);
@@ -175,7 +189,7 @@ export class NetworkCollector {
     if (!pending) return;
     this.pending.delete(requestId);
     const parsed = parseUrl(pending.url);
-    this.completed.push({
+    const sanitized = sanitizeNetworkEvent({
       requestId: pending.requestId,
       timestamp: pending.timestamp,
       method: pending.method,
@@ -193,7 +207,33 @@ export class NetworkCollector {
       requestSize: pending.requestSize,
       responseSize: pending.responseSize,
       error: pending.error,
+      initiator: pending.initiator,
     });
+    this.redactionCount += sanitized.redactionCount;
+    this.completed.push(sanitized.value);
+  }
+
+  private cleanHeaders(headers: HeaderEntry[]): HeaderEntry[] {
+    const sanitized = sanitizeHeaders(headers);
+    this.redactionCount += sanitized.redactionCount;
+    return sanitized.value;
+  }
+
+  private cleanString(value: string): string {
+    const sanitized = sanitizeString(value);
+    this.redactionCount += sanitized.redactionCount;
+    return sanitized.value;
+  }
+
+  private cleanUrl(value: string): string {
+    const sanitized = sanitizeUrl(value);
+    this.redactionCount += sanitized.redactionCount;
+    return sanitized.value;
+  }
+
+  private cleanUrlOrString(value: string): string | undefined {
+    if (!value) return undefined;
+    return /^https?:\/\//i.test(value) ? this.cleanUrl(value) : this.cleanString(value);
   }
 
   private removeListeners(): void {
@@ -218,6 +258,25 @@ function mergeHeaders(primary: HeaderEntry[], extra: HeaderEntry[]): HeaderEntry
 function estimateRequestSize(request: Record<string, any>): number {
   const headers = headersFromProtocol(request.headers);
   return request.method.length + String(request.url ?? '').length + headers.reduce((total, header) => total + header.name.length + header.value.length + 4, 0);
+}
+
+function extractInitiator(initiator: Record<string, any> | undefined): string {
+  if (!initiator) return '';
+  const directUrl = String(initiator.url ?? '');
+  if (directUrl) return directUrl;
+  const callFrames = initiator.stack?.callFrames;
+  if (Array.isArray(callFrames)) {
+    const frame = callFrames.find((candidate) => candidate?.url);
+    if (frame?.url) return String(frame.url);
+  }
+  return String(initiator.type ?? '');
+}
+
+function failureDescription(params: Record<string, any>): string {
+  const parts = [String(params.errorText ?? 'Network request failed')];
+  if (params.canceled) parts.push('aborted');
+  if (params.blockedReason) parts.push(`blocked: ${String(params.blockedReason)}`);
+  return parts.join(' · ');
 }
 
 function parseUrl(input: string): { host: string; path: string; query: string } {

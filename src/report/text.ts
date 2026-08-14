@@ -1,4 +1,5 @@
 import type { CaptureResult, ConsoleEvent, NetworkEvent } from '../types';
+import { sanitizeCaptureResult } from '../sanitizer';
 
 const formatter = new Intl.DateTimeFormat('ru-RU', {
   day: '2-digit',
@@ -11,7 +12,8 @@ const formatter = new Intl.DateTimeFormat('ru-RU', {
 });
 
 export function createTextReport(result: CaptureResult): string {
-  const { metadata, network, console, timeline } = result;
+  const safeResult = sanitizeCaptureResult(result).value;
+  const { metadata, network, console, timeline } = safeResult;
   const counts = {
     success: network.filter((event) => event.status >= 200 && event.status < 300).length,
     redirect: network.filter((event) => event.status >= 300 && event.status < 400).length,
@@ -47,7 +49,7 @@ export function createTextReport(result: CaptureResult): string {
     '',
     `Console errors: ${countConsole(console, ['error', 'page-error', 'unhandled-rejection'])}`,
     `Console warnings: ${countConsole(console, ['warn'])}`,
-    `Скрыто чувствительных значений: ${result.redactionCount}`,
+    `Скрыто чувствительных значений: ${safeResult.redactionCount}`,
     '',
     'NETWORK ERRORS',
     '=================',

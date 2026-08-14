@@ -38,6 +38,7 @@ export interface NetworkEvent {
   requestSize: number;
   responseSize: number;
   error: string;
+  initiator?: string;
 }
 
 export type ConsoleLevel = 'error' | 'warn' | 'page-error' | 'unhandled-rejection';

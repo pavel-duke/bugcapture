@@ -1,19 +1,21 @@
 import type { CaptureResult, HeaderEntry, NetworkEvent } from '../types';
+import { sanitizeCaptureResult } from '../sanitizer';
 
 export function createSafeHar(result: CaptureResult): string {
+  const safeResult = sanitizeCaptureResult(result).value;
   const har = {
     log: {
       version: '1.2',
-      creator: { name: 'BugCapture', version: result.metadata.extensionVersion },
+      creator: { name: 'BugCapture', version: safeResult.metadata.extensionVersion },
       pages: [
         {
-          startedDateTime: new Date(result.metadata.startTime).toISOString(),
-          id: result.metadata.sessionId,
-          title: result.metadata.pageTitle,
+          startedDateTime: new Date(safeResult.metadata.startTime).toISOString(),
+          id: safeResult.metadata.sessionId,
+          title: safeResult.metadata.pageTitle,
           pageTimings: {},
         },
       ],
-      entries: result.network.map((event) => toHarEntry(event, result.metadata.sessionId)),
+      entries: safeResult.network.map((event) => toHarEntry(event, safeResult.metadata.sessionId)),
       comment: 'Safe HAR: bodies and cookies are not stored; sensitive values are redacted.',
     },
   };
@@ -64,6 +66,7 @@ function toHarEntry(event: NetworkEvent, pageRef: string) {
     serverIPAddress: '',
     connection: '',
     _resourceType: event.resourceType,
+    _initiator: event.initiator || undefined,
   };
 }
 

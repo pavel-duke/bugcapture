@@ -1,3 +1,5 @@
+import { sanitizeConsoleValue } from '../sanitizer';
+
 interface BridgeWindow extends Window {
   __BUGCAPTURE_BRIDGE_INSTALLED__?: boolean;
 }
@@ -20,20 +22,7 @@ if (!bridgeWindow.__BUGCAPTURE_BRIDGE_INSTALLED__) {
   };
 
   const serialize = (value: unknown): string => {
-    if (value instanceof Error) return value.stack || `${value.name}: ${value.message}`;
-    if (typeof value === 'string') return value;
-    try {
-      const seen = new WeakSet<object>();
-      return JSON.stringify(value, (_key, nested) => {
-        if (typeof nested === 'object' && nested !== null) {
-          if (seen.has(nested)) return '[Circular]';
-          seen.add(nested);
-        }
-        return nested;
-      });
-    } catch {
-      return String(value);
-    }
+    return sanitizeConsoleValue(value).value;
   };
 
   const start = () => {
