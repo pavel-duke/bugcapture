@@ -1,6 +1,6 @@
 interface OffscreenMessage {
   target?: 'offscreen';
-  action?: 'START_RECORDING' | 'STOP_RECORDING' | 'STORE_TEXT_ARTIFACTS' | 'DOWNLOAD_ARTIFACT' | 'DOWNLOAD_ALL';
+  action?: 'START_RECORDING' | 'STOP_RECORDING' | 'STORE_TEXT_ARTIFACTS' | 'PREPARE_ARTIFACT';
   streamId?: string;
   baseFilename?: string;
   report?: string;
@@ -46,12 +46,8 @@ async function handleMessage(message: OffscreenMessage): Promise<unknown> {
       harText = message.har ?? '';
       baseFilename = required(message.baseFilename, 'Не задано имя файла.');
       return true;
-    case 'DOWNLOAD_ARTIFACT':
-      await downloadArtifact(required(message.kind, 'Не выбран тип файла.'));
-      return true;
-    case 'DOWNLOAD_ALL':
-      for (const kind of ['video', 'report', 'har'] as const) await downloadArtifact(kind);
-      return true;
+    case 'PREPARE_ARTIFACT':
+      return prepareArtifact(required(message.kind, 'Не выбран тип файла.'));
     default:
       throw new Error('Неизвестная команда offscreen document.');
   }
@@ -104,7 +100,7 @@ async function stopRecording(): Promise<{ duration: number; size: number }> {
   return { duration: Date.now() - startedAt, size: videoBlob.size };
 }
 
-async function downloadArtifact(kind: 'video' | 'report' | 'har'): Promise<void> {
+function prepareArtifact(kind: 'video' | 'report' | 'har'): { url: string; filename: string } {
   let blob: Blob;
   let filename: string;
   if (kind === 'video') {
@@ -121,11 +117,8 @@ async function downloadArtifact(kind: 'video' | 'report' | 'har'): Promise<void>
     filename = `${baseFilename}.safe.har`;
   }
   const url = URL.createObjectURL(blob);
-  try {
-    await chrome.downloads.download({ url, filename, saveAs: false, conflictAction: 'uniquify' });
-  } finally {
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  }
+  window.setTimeout(() => URL.revokeObjectURL(url), 120_000);
+  return { url, filename };
 }
 
 function selectMimeType(): string {

@@ -58,6 +58,18 @@ export class ChromiumBrowserAdapter implements BrowserAdapter {
       justification: 'Запись выбранной пользователем вкладки и локальная подготовка файлов',
     });
   }
+
+  async downloadUrl(url: string, filename: string): Promise<number> {
+    if (!chrome.downloads?.download) {
+      throw new Error('Браузер не предоставил API для скачивания файлов.');
+    }
+    return chrome.downloads.download({
+      url,
+      filename,
+      saveAs: false,
+      conflictAction: 'uniquify',
+    });
+  }
 }
 
 export const browserAdapter = new ChromiumBrowserAdapter();

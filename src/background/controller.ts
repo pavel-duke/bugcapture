@@ -35,6 +35,11 @@ interface OffscreenResponse<T = unknown> {
   error?: string;
 }
 
+interface PreparedArtifact {
+  url: string;
+  filename: string;
+}
+
 export class CaptureController {
   private status: CaptureStatus = 'idle';
   private session: ActiveSession | null = null;
@@ -206,7 +211,7 @@ export class CaptureController {
       this.session = null;
       await this.updateBadge();
       try {
-        await this.sendOffscreen('DOWNLOAD_ALL');
+        await this.downloadAllArtifacts();
         this.downloadsStarted = true;
       } catch (downloadError) {
         this.error = `Файлы готовы, но автоматическое скачивание не началось: ${errorMessage(downloadError)}`;
@@ -240,7 +245,11 @@ export class CaptureController {
 
   async download(kind?: ArtifactKind): Promise<void> {
     if (!this.result || this.status !== 'completed') throw new Error('Сначала завершите запись.');
-    await this.sendOffscreen(kind ? 'DOWNLOAD_ARTIFACT' : 'DOWNLOAD_ALL', kind ? { kind } : {});
+    if (kind) {
+      await this.downloadArtifact(kind);
+      return;
+    }
+    await this.downloadAllArtifacts();
   }
 
   async handleTabUpdated(tabId: number): Promise<void> {
@@ -286,6 +295,18 @@ export class CaptureController {
     const response = (await chrome.runtime.sendMessage({ target: 'offscreen', action, ...payload })) as OffscreenResponse;
     if (!response?.ok) throw new Error(response?.error || `Offscreen command ${action} failed.`);
     return response.data;
+  }
+
+  private async downloadAllArtifacts(): Promise<void> {
+    for (const kind of ['video', 'report', 'har'] as const) {
+      await this.downloadArtifact(kind);
+    }
+  }
+
+  private async downloadArtifact(kind: ArtifactKind): Promise<void> {
+    const artifact = (await this.sendOffscreen('PREPARE_ARTIFACT', { kind })) as PreparedArtifact;
+    if (!artifact?.url || !artifact.filename) throw new Error('Не удалось подготовить файл для скачивания.');
+    await browserAdapter.downloadUrl(artifact.url, artifact.filename);
   }
 
   private async updateBadge(): Promise<void> {
