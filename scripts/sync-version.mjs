@@ -30,9 +30,8 @@ const manifest = {
     'offscreen',
     'scripting',
     'tabCapture',
-    'tabs',
   ],
-  host_permissions: ['<all_urls>'],
+  host_permissions: ['http://*/*', 'https://*/*'],
   background: {
     service_worker: 'assets/background.js',
     type: 'module',
@@ -53,19 +52,6 @@ const manifest = {
     48: 'icons/icon-48.png',
     128: 'icons/icon-128.png',
   },
-  content_scripts: [
-    {
-      matches: ['http://*/*', 'https://*/*'],
-      js: ['assets/page-bridge.js'],
-      run_at: 'document_start',
-      world: 'MAIN',
-    },
-    {
-      matches: ['http://*/*', 'https://*/*'],
-      js: ['assets/content.js'],
-      run_at: 'document_start',
-    },
-  ],
   content_security_policy: {
     extension_pages: "script-src 'self'; object-src 'self'",
   },
