@@ -1,0 +1,73 @@
+name: Сообщить об ошибке
+description: Помогите воспроизвести проблему в BugCapture
+title: "[Ошибка]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Не добавляйте реальные токены, cookie, внутренние URL и приватные диагностические файлы.
+  - type: input
+    id: version
+    attributes:
+      label: Версия BugCapture
+      placeholder: 0.2.0
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Браузер
+      options:
+        - Яндекс Браузер
+        - Google Chrome
+        - Microsoft Edge
+        - Другой Chromium-браузер
+    validations:
+      required: true
+  - type: input
+    id: browser-version
+    attributes:
+      label: Версия браузера
+      placeholder: 26.6.4.760
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Операционная система
+      placeholder: Windows 11, macOS 15, Ubuntu 24.04
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: Что произошло?
+      description: Опишите ошибку и используйте только тестовые данные.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Как повторить?
+      description: Перечислите точные действия.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Что ожидалось?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Очищенный текст ошибки
+      description: Перед публикацией проверьте, что здесь нет токенов, cookie и внутренних адресов.
+      render: shell
+  - type: checkboxes
+    id: secrets
+    attributes:
+      label: Безопасность данных
+      options:
+        - label: Я проверил, что в описании и логах нет секретов и приватных данных.
+          required: true

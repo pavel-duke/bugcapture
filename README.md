@@ -6,12 +6,22 @@
 
 Работает локально и никуда не отправляет собранные данные.
 
+[Скачать BugCapture](https://github.com/pavel-duke/bugcapture/releases/latest) · [Установка](INSTALL.md) · [Roadmap](docs/roadmap.md)
+
+> BugCapture 0.2.0 получил новый тёмный интерфейс и исправленное скачивание WEBM, TXT и safe HAR после остановки записи.
+
 Поддерживаемые браузеры:
 
 - Яндекс Браузер;
 - Google Chrome;
 - Microsoft Edge;
 - Chromium 116 и новее.
+
+## Как выглядит расширение
+
+Текущая вкладка, состав диагностического пакета и статус защиты видны до начала записи. Интерфейс использует общую дизайн-систему с [ReqVault](https://github.com/pavel-duke/reqvault).
+
+![Тёмный интерфейс BugCapture 0.2.0](docs/screenshots/bugcapture-popup.png)
 
 ## Что умеет
 
@@ -29,7 +39,7 @@
 Открой [последний GitHub Release](https://github.com/pavel-duke/bugcapture/releases/latest) и скачай файл вида:
 
 ```text
-BugCapture-v0.1.0-chromium.zip
+BugCapture-v0.2.0-chromium.zip
 ```
 
 Не скачивай автоматически созданный GitHub файл `Source code.zip`: это исходники для разработчиков.
@@ -97,7 +107,7 @@ Sanitizer уменьшает риск случайной передачи сек
 
 ## Поддерживаемые браузеры
 
-| Браузер | Статус 0.1.0 |
+| Браузер | Статус 0.2.0 |
 |---|---|
 | Яндекс Браузер | основной целевой браузер |
 | Google Chrome | поддерживается |
@@ -111,7 +121,7 @@ Sanitizer уменьшает риск случайной передачи сек
 
 - запись не запускается на внутренних страницах `browser://`, `chrome://`, `edge://` и в магазинах расширений;
 - DevTools нельзя одновременно держать подключёнными к той же вкладке: браузер разрешает только одно debugger-соединение;
-- аудио в 0.1.0 не записывается;
+- аудио пока не записывается;
 - при закрытии записываемой вкладки до нажатия Stop часть данных может быть потеряна;
 - данные сессии не восстанавливаются после полного закрытия браузера;
 - локально установленное расширение обновляется вручную;
@@ -161,7 +171,7 @@ npm run package
 Команда создаёт:
 
 ```text
-release/BugCapture-v0.1.0-chromium.zip
+release/BugCapture-v0.2.0-chromium.zip
 ```
 
 В ZIP находятся только готовые файлы расширения. Версия берётся из `package.json`; скрипт автоматически синхронизирует `manifest.json`, интерфейс и имя архива.
@@ -183,32 +193,41 @@ npm run verify
 
 Ручной сценарий релиза описан в [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md).
 
+Product screenshot интерфейса создаётся из production build:
+
+```bash
+npm run screenshot
+```
+
 ## Релизы
 
-GitHub Actions запускается для pull request и push в `main`. Тег вида `v0.1.0` дополнительно:
+GitHub Actions запускается для pull request и push в `main`. Тег вида `v0.2.0` дополнительно:
 
 1. проверяет совпадение тега с `package.json`;
 2. запускает lint, typecheck и tests;
 3. создаёт production build;
-4. собирает `BugCapture-v0.1.0-chromium.zip`;
+4. собирает `BugCapture-v0.2.0-chromium.zip`;
 5. прикладывает ZIP к GitHub Release.
 
 ## Roadmap
 
-- **0.2.0:** фильтры Network, failed requests и улучшенный экран результата;
-- **0.3.0:** пользовательские sensitive headers/params и preview очистки;
-- **0.4.0:** просмотр Timeline, Network, Console, Errors и Security внутри BugCapture;
-- **0.5.0:** расширенные HAR timings, redirects и initiator;
-- **0.6.0:** опциональные bodies с JSON sanitizer и лимитами;
-- **0.7.0:** единый diagnostic bundle ZIP и `report.json`;
-- **0.8.0:** sanitized cURL и текст для тикета;
-- **0.9.0:** длительные сессии, accessibility, privacy и security review;
-- **1.0.0:** стабильные форматы, JSON/ZIP и публикация в каталогах расширений.
+Следующие этапы: Network explorer, просмотр диагностики внутри расширения, расширенный HAR, опциональные bodies и единый diagnostic bundle.
+
+Полный план: [docs/roadmap.md](docs/roadmap.md).
 
 ## Участие в проекте
 
 Ошибки и предложения можно создавать в GitHub Issues. Перед pull request прочитай [CONTRIBUTING.md](CONTRIBUTING.md).
 
+- архитектура: [docs/architecture.md](docs/architecture.md);
+- дизайн-система: [docs/design-system.md](docs/design-system.md);
+- история изменений: [CHANGELOG.md](CHANGELOG.md);
+- безопасность: [SECURITY.md](SECURITY.md).
+
 ## Лицензия
 
 [MIT](LICENSE)
+
+## Контакты
+
+Вопросы по проекту и предложения: [Telegram @pavel_duke](https://t.me/pavel_duke).
