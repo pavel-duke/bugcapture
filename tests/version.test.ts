@@ -12,4 +12,15 @@ describe('версия', () => {
     expect(BUGCAPTURE_VERSION).toBe(packageJson.version);
     expect(manifest.version).toBe(packageJson.version);
   });
+
+  it('manifest содержит только необходимые permissions', () => {
+    const root = resolve(import.meta.dirname, '..');
+    const manifest = JSON.parse(readFileSync(resolve(root, 'public', 'manifest.json'), 'utf8'));
+
+    expect(manifest.permissions.sort()).toEqual(
+      ['activeTab', 'debugger', 'downloads', 'offscreen', 'scripting', 'tabCapture'].sort(),
+    );
+    expect(manifest.host_permissions).toEqual(['http://*/*', 'https://*/*']);
+    expect(manifest).not.toHaveProperty('content_scripts');
+  });
 });

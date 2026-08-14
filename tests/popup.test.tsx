@@ -82,7 +82,7 @@ describe('Popup', () => {
             pageTitle: 'Example',
             browser: { name: 'Яндекс Браузер', version: '26.6', os: 'Windows 11', userAgent: 'test' },
             viewport: { width: 1440, height: 900, devicePixelRatio: 1 },
-            extensionVersion: '0.3.0',
+            extensionVersion: '0.4.0',
           },
           network: [],
           console: [],
