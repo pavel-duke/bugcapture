@@ -3,7 +3,7 @@
 ## Быстрая установка
 
 1. Открой [последний релиз BugCapture](https://github.com/pavel-duke/bugcapture/releases/latest).
-2. Скачай `BugCapture-v0.2.0-chromium.zip` или файл с более новой версией.
+2. Скачай `BugCapture-v0.3.0-chromium.zip` или файл с более новой версией.
 3. Не выбирай `Source code.zip`: это исходники, а не готовое расширение.
 4. Распакуй ZIP в постоянную папку, например `C:\Users\Имя\BugCapture`.
 5. Выполни инструкцию для своего браузера ниже.

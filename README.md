@@ -8,7 +8,7 @@
 
 [Скачать BugCapture](https://github.com/pavel-duke/bugcapture/releases/latest) · [Установка](INSTALL.md) · [Roadmap](docs/roadmap.md)
 
-> BugCapture 0.2.0 получил новый тёмный интерфейс и исправленное скачивание WEBM, TXT и safe HAR после остановки записи.
+> BugCapture 0.3.0 получил минималистичный тёмный интерфейс: одна кнопка запуска, отметка момента во время записи и компактный экран результата.
 
 Поддерживаемые браузеры:
 
@@ -19,9 +19,9 @@
 
 ## Как выглядит расширение
 
-Текущая вкладка, состав диагностического пакета и статус защиты видны до начала записи. Интерфейс использует общую дизайн-систему с [ReqVault](https://github.com/pavel-duke/reqvault).
+До записи видны только текущая вкладка и одна главная кнопка. Во время записи доступны таймер, отметка момента и остановка. Интерфейс использует общую дизайн-систему с [ReqVault](https://github.com/pavel-duke/reqvault).
 
-![Тёмный интерфейс BugCapture 0.2.0](docs/screenshots/bugcapture-popup.png)
+![Минималистичный интерфейс BugCapture 0.3.0](docs/screenshots/bugcapture-popup.png)
 
 ## Что умеет
 
@@ -39,7 +39,7 @@
 Открой [последний GitHub Release](https://github.com/pavel-duke/bugcapture/releases/latest) и скачай файл вида:
 
 ```text
-BugCapture-v0.2.0-chromium.zip
+BugCapture-v0.3.0-chromium.zip
 ```
 
 Не скачивай автоматически созданный GitHub файл `Source code.zip`: это исходники для разработчиков.
@@ -52,7 +52,7 @@ BugCapture-v0.2.0-chromium.zip
 2. Нажми значок BugCapture на панели браузера.
 3. Нажми **Начать запись**.
 4. Воспроизведи проблему.
-5. При необходимости нажми **Отметить проблему**.
+5. При необходимости нажми **Отметить момент**.
 6. Открой BugCapture снова и нажми **Остановить**.
 7. Дождись скачивания WEBM, TXT и safe HAR.
 
@@ -107,7 +107,7 @@ Sanitizer уменьшает риск случайной передачи сек
 
 ## Поддерживаемые браузеры
 
-| Браузер | Статус 0.2.0 |
+| Браузер | Статус 0.3.0 |
 |---|---|
 | Яндекс Браузер | основной целевой браузер |
 | Google Chrome | поддерживается |
@@ -171,7 +171,7 @@ npm run package
 Команда создаёт:
 
 ```text
-release/BugCapture-v0.2.0-chromium.zip
+release/BugCapture-v0.3.0-chromium.zip
 ```
 
 В ZIP находятся только готовые файлы расширения. Версия берётся из `package.json`; скрипт автоматически синхронизирует `manifest.json`, интерфейс и имя архива.
@@ -201,17 +201,17 @@ npm run screenshot
 
 ## Релизы
 
-GitHub Actions запускается для pull request и push в `main`. Тег вида `v0.2.0` дополнительно:
+GitHub Actions запускается для pull request и push в `main`. Тег вида `v0.3.0` дополнительно:
 
 1. проверяет совпадение тега с `package.json`;
 2. запускает lint, typecheck и tests;
 3. создаёт production build;
-4. собирает `BugCapture-v0.2.0-chromium.zip`;
+4. собирает `BugCapture-v0.3.0-chromium.zip`;
 5. прикладывает ZIP к GitHub Release.
 
 ## Roadmap
 
-Следующие этапы: Network explorer, просмотр диагностики внутри расширения, расширенный HAR, опциональные bodies и единый diagnostic bundle.
+Планы до 1.5.0 включают просмотр Network и диагностики, развитие sanitizer, поддержку длительных записей и подготовку к публикации в каталогах. Эти функции пока не реализованы.
 
 Полный план: [docs/roadmap.md](docs/roadmap.md).
 
