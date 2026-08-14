@@ -1,0 +1,55 @@
+:root {
+  color: #20233f;
+  background: #f5f6fb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 380px; min-height: 520px; }
+button { font: inherit; }
+.app { width: 380px; min-height: 520px; padding: 20px; background: radial-gradient(circle at top right, #e7f9f3 0, transparent 36%), #f5f6fb; }
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; background: #292d57; color: #5de2be; font-weight: 900; font-size: 22px; box-shadow: 0 7px 20px #292d5730; }
+h1 { margin: 0; font-size: 22px; letter-spacing: -0.4px; }
+.brand p { margin: 2px 0 0; color: #6f7288; font-size: 12px; }
+.card { padding: 17px; margin-bottom: 12px; border: 1px solid #e4e5ee; border-radius: 17px; background: #fff; box-shadow: 0 8px 24px #2427460a; }
+.tab-card { display: grid; gap: 3px; }
+.label { color: #777a90; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.muted { color: #777a90; }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.divider { height: 1px; margin: 10px 0; background: #ececf2; }
+h2 { margin: 0 0 12px; font-size: 16px; }
+.feature { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; min-height: 34px; }
+.feature > span:first-child { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: #edf9f5; color: #208b70; font-weight: 800; }
+.feature b { color: #20a37d; }
+.privacy-note, .hint { color: #6f7288; font-size: 12px; line-height: 1.45; }
+.privacy-note { margin: 11px 0 0; padding-top: 11px; border-top: 1px solid #ececf2; }
+.hint { margin: 8px 12px; text-align: center; }
+button { border: 0; border-radius: 12px; cursor: pointer; transition: transform .12s ease, opacity .12s ease; }
+button:hover:not(:disabled) { transform: translateY(-1px); }
+button:disabled { cursor: default; opacity: .6; }
+.primary, .stop, .secondary { width: 100%; min-height: 46px; font-weight: 750; }
+.primary { background: #292d57; color: #fff; box-shadow: 0 8px 20px #292d5730; }
+.secondary { margin-top: 16px; color: #292d57; background: #edeef6; }
+.stop { margin-top: 8px; color: #fff; background: #dd4560; }
+.recording-card { padding: 22px; }
+.recording-status { display: flex; align-items: center; justify-content: center; gap: 9px; color: #d73855; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.record-dot { width: 11px; height: 11px; border-radius: 50%; background: #e24b63; box-shadow: 0 0 0 5px #e24b631a; animation: pulse 1.4s infinite; }
+.timer { margin: 18px 0 22px; text-align: center; font-size: 42px; font-variant-numeric: tabular-nums; font-weight: 760; letter-spacing: -1px; }
+.stats { margin: 0; padding: 5px 0; border-top: 1px solid #ececf2; border-bottom: 1px solid #ececf2; }
+.stats > div { display: flex; align-items: center; justify-content: space-between; padding: 9px 2px; }
+.stats dt { color: #666a82; }
+.stats dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; }
+.danger { color: #d73855; }
+.completed-card { text-align: center; }
+.success-mark { display: grid; place-items: center; width: 50px; height: 50px; margin: 2px auto 12px; border-radius: 50%; color: #08765b; background: #dff8ef; font-size: 26px; font-weight: 900; }
+.safe-message { margin: 15px 0; padding: 11px; border-radius: 10px; color: #08765b; background: #edf9f5; font-size: 13px; font-weight: 650; }
+.downloaded { margin: 0 0 12px; color: #565a73; font-size: 12px; }
+.artifact-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 9px; }
+.artifact-buttons button { padding: 10px 5px; color: #343858; background: #edeef6; font-size: 12px; font-weight: 700; }
+.alert { margin: 12px 0; padding: 11px 12px; border: 1px solid #f0c1c9; border-radius: 10px; color: #982a3d; background: #fff0f3; font-size: 12px; line-height: 1.4; }
+.centered { text-align: center; }
+footer { margin-top: 17px; color: #8a8da1; text-align: center; font-size: 10px; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 9px #e24b6308; opacity: .75; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
