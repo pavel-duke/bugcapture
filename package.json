@@ -38,7 +38,7 @@
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.2",
     "@types/archiver": "8.0.0",
-    "@types/chrome": "0.2.6",
+    "@types/chrome": "0.2.7",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
     "@vitejs/plugin-react": "6.0.5",
